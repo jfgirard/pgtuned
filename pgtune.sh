@@ -13,8 +13,8 @@ It produces a postgresql.conf file based on supplied parameters.
 
   -h                  display this help and exit
   -v PG_VERSION       (optional) PostgreSQL version
-                      accepted values: 9.5, 9.6, 10, 11, 12, 13, 14, 15
-                      default value: 15
+                      accepted values: 9.5, 9.6, 10, 11, 12, 13, 14, 15, 16, 17
+                      default value: 17
   -t DB_TYPE          (optional) For what type of application is PostgreSQL used
                       accepted values: web, oltp, dw, desktop, mixed
                       default value: web
@@ -96,7 +96,7 @@ set_db_default_values() {
       max_worker_processes=8
       max_parallel_workers_per_gather=0
       ;;
-    "10" | "11" | "12" | "13" | "14" | "15")
+    "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17")
       max_worker_processes=8
       max_parallel_workers_per_gather=2
       max_parallel_workers=8
@@ -177,7 +177,7 @@ set_maintenance_work_mem() {
   local mem_limit=$(( 2 * $GB / $KB ))
   if [ "$maintenance_work_mem" -gt "$mem_limit" ]
   then
-    maintenance_work_mem=$mem_limit
+    maintenance_work_mem = $mem_limit
   fi
 }
 
@@ -416,7 +416,7 @@ cpu_num=$(get_cpu_count) || exit $?
 storage_type=$(get_disk_type)
 conn_nb=0
 db_type="web"
-db_version=15
+db_version=17
 
 while getopts "hv:t:m:u:c:s:" opt; do
   case $opt in
@@ -433,7 +433,9 @@ while getopts "hv:t:m:u:c:s:" opt; do
       [ $v != "12" ] && \
       [ $v != "13" ] && \
       [ $v != "14" ] && \
-      [ $v != "15" ]
+      [ $v != "15" ] && \
+      [ $v != "16" ] && \
+      [ $v != "17" ]
       then
         _input_error "$v is not a valid PostgreSQL version number"
       fi
