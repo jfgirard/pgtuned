@@ -6,15 +6,15 @@ GB=1073741824
 
 show_help() {
 cat << EOF
-Usage: ${0##*/} [-h] [-v PG_VERSION] [-t DB_TYPE] [-m TOTAL_MEM] [-u CPU_COUNT] [-c MAX_CONN] [-s STGE_TYPE]
+Usage: ${0##*/} [-h] [-v PG_VERSION] [-t DB_TYPE] [-m TOTAL_MEM] [-u CPU_COUNT] [-c MAX_CONN]
 
 This script is a bash port of PGTune (https://pgtune.leopard.in.ua).
 It produces a postgresql.conf file based on supplied parameters.
 
   -h                  display this help and exit
   -v PG_VERSION       (optional) PostgreSQL version
-                      accepted values: 9.5, 9.6, 10, 11, 12, 13, 14, 15, 16, 17
-                      default value: 17
+                      accepted values: 9.5, 9.6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
+                      default value: 18
   -t DB_TYPE          (optional) For what type of application is PostgreSQL used
                       accepted values: web, oltp, dw, desktop, mixed
                       default value: web
@@ -28,10 +28,6 @@ It produces a postgresql.conf file based on supplied parameters.
   -c MAX_CONN         (optional) Maximum number of PostgreSQL client connections
                       accepted values: integer between 20 and 9999
                       default value: preset corresponding to db_type
-  -s STGE_TYPE        (optional) Type of data storage device used with PostgreSQL
-                      accepted values: hdd, ssd, san
-                      default value: this script will try to determine the storage type (san not supported) and use hdd
-                      value in case of failure.
 EOF
 }
 
@@ -80,8 +76,8 @@ get_disk_type () {
       disk_type="hdd"
       ;;
     *)
-      _warn "cannot detect disk type, hdd type will be used. Supply -s STGE_TYPE if necessary."
-      disk_type="hdd"
+      _warn "cannot detect disk type, ssd type will be used."
+      disk_type="ssd"
       ;;
   esac
   echo $disk_type
@@ -96,7 +92,7 @@ set_db_default_values() {
       max_worker_processes=8
       max_parallel_workers_per_gather=0
       ;;
-    "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17")
+    "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17" | "18" | "19")
       max_worker_processes=8
       max_parallel_workers_per_gather=2
       max_parallel_workers=8
@@ -416,7 +412,7 @@ cpu_num=$(get_cpu_count) || exit $?
 storage_type=$(get_disk_type)
 conn_nb=0
 db_type="web"
-db_version=17
+db_version=18
 
 while getopts "hv:t:m:u:c:s:" opt; do
   case $opt in
