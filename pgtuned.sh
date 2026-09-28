@@ -38,19 +38,31 @@ then
   cmd_opts+=" -s "$STGE_TYPE
 fi
 
+# Determine the correct postgresql.conf path
+PG_CONF_PATH="/var/lib/postgresql/data/postgresql.conf"
+if [ ! -f "$PG_CONF_PATH" ]; then
+  PG_CONF_PATH="/var/lib/postgresql/postgresql.conf"
+fi
+
+# Safety check to ensure the file exists at either location
+if [ ! -f "$PG_CONF_PATH" ]; then
+  echo "[pgtuned.sh] Error: postgresql.conf not found at either location!"
+  exit 1
+fi
+
 cd /tmp
 
 echo "[pgtuned.sh] executing \"pgtune.sh$cmd_opts\""
 bash pgtune.sh $cmd_opts > tuned.conf
 
-echo "[pgtuned.sh] importing additional parameters from existing postgresql.conf"
+echo "[pgtuned.sh] importing additional parameters from existing postgresql.conf at $PG_CONF_PATH"
 while IFS= read -r line; do
   if [[ $line =~ ^[[:blank:]]*([^\#]*)\ =\ ([^[[:blank:]]\#\'\"]*|\'.*\'|\".*\")[[:blank:]]*(\#?.*)$ ]]; then
     key=${BASH_REMATCH[1]}
     value=${BASH_REMATCH[2]}
     outoftune[$key]=$value
   fi
-done < /var/lib/postgresql/data/postgresql.conf
+done < "$PG_CONF_PATH"
 
 while IFS= read -r line; do
   if [[ $line =~ ^([^\#]*)\ =\ (.*)$ ]]; then
@@ -74,5 +86,5 @@ do
   fi
 done
 
-cp /tmp/tuned.conf /var/lib/postgresql/data/postgresql.conf
+cp /tmp/tuned.conf "$PG_CONF_PATH"
 echo "[pgtuned.sh] postgresql.conf has been successfully pgtuned"
