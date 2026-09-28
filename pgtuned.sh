@@ -41,7 +41,7 @@ fi
 # Determine the correct postgresql.conf path
 PG_CONF_PATH="/var/lib/postgresql/data/postgresql.conf"
 if [ ! -f "$PG_CONF_PATH" ]; then
-  PG_CONF_PATH="/var/lib/postgresql/postgresql.conf"
+  PG_CONF_PATH="$PGDATA/postgresql.conf"
 fi
 
 # Safety check to ensure the file exists at either location
