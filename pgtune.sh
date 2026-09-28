@@ -435,7 +435,9 @@ while getopts "hv:t:m:u:c:s:" opt; do
       [ $v != "14" ] && \
       [ $v != "15" ] && \
       [ $v != "16" ] && \
-      [ $v != "17" ]
+      [ $v != "17" ] && \
+      [ $v != "18" ] && \
+      [ $v != "19" ]
       then
         _input_error "$v is not a valid PostgreSQL version number"
       fi
